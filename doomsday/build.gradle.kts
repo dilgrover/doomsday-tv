@@ -17,7 +17,7 @@ android {
         targetSdk = 34
         // A CI run number, if there is one, so every build installs over the last one.
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
-        versionName = "1.3.1"
+        versionName = "1.3.2"
     }
 
     // Debug builds use Android's own debug key. A release build is signed with your own key,

@@ -1,6 +1,10 @@
 # Changelog
 
 
+## 1.3.2
+
+- Releases are signed with the project's own key, so each new version installs over the last one (uninstall a 1.3 or 1.3.1 download once first).
+
 ## 1.3.1
 
 - Releases: the APK is built and attached to each GitHub release automatically.
