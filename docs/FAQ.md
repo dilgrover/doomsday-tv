@@ -1,0 +1,37 @@
+# Questions and problems
+
+**"The site didn't let the TV download it (403)"**
+Some sites refuse downloads from apps. Put the picture somewhere you control (Google Drive or
+Dropbox, [PICTURES.md](PICTURES.md)) and use that link.
+
+**"That isn't a picture"**
+The link opens a web page, not the picture. Drive links must be the
+`uc?export=download&id=...` form; Dropbox links must end in `dl=1`. A Drive file must be shared
+as *Anyone with the link*, or the TV gets Google's sign-in page.
+
+**Download worked but the picture looks soft**
+Use a bigger picture: 1920×1080 or 4K.
+
+**There's no keyboard when I type a link**
+Select the link box and press **OK**: the app's own keyboard opens. It doesn't need the TV's
+keyboard, so it works the same on Google TV and Fire TV.
+
+**Where's the screensaver on my Fire TV?**
+Fire TV doesn't let other apps be its screensaver. *Preview* in Settings still shows it.
+
+**Can I turn the ticking off?**
+*Settings → Ticking sound → Off*. It never ticks from 11 pm to 7 am anyway.
+
+**My pictures don't get glowing eyes**
+Those effects are placed by hand on a few recognised pictures. Every picture still gets the
+light, mist, dust, the camera move, the energy jumps and Summon.
+
+**Does it work without internet?**
+Yes, once your pictures are downloaded. The weather just hides.
+
+**What happens on 16 December 2026?**
+The heading changes to "Avengers: Doomsday is here".
+
+**Is my data sent anywhere?**
+No. The only network use is downloading your own picture links and the weather from
+Open-Meteo.

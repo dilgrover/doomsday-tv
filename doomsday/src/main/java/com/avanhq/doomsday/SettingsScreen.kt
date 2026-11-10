@@ -1,0 +1,111 @@
+package com.avanhq.doomsday
+
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
+import android.view.KeyEvent
+import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.avanhq.tv.Fonts
+import com.avanhq.tv.Ui
+
+/**
+ * Settings: the pictures, how often Rotate
+ * changes, the clock, the weather and its city, the effects, dimming at night, the screensaver
+ * and which version this is. Each choice is a row of chips, the chosen one marked; it's saved
+ * as it's pressed.
+ */
+class SettingsScreen(
+    context: Context,
+    private val settings: Settings,
+    private val pictures: Pictures,
+    private val openPictures: () -> Unit,
+    private val openPreview: () -> Unit,
+    private val done: () -> Unit,
+) : FrameLayout(context) {
+    private val groups = ArrayList<() -> Unit>() // each row's "mark the chosen chip"
+    private var first: View? = null
+
+    init {
+        setBackgroundColor(Color.rgb(5, 9, 7))
+        addView(View(context).apply {
+            background = GradientDrawable().apply {
+                gradientType = GradientDrawable.RADIAL_GRADIENT
+                gradientRadius = 1300f
+                setGradientCenter(.2f, 0f)
+                colors = intArrayOf(Color.argb(90, 40, 120, 70), Color.TRANSPARENT)
+            }
+        }, LayoutParams(Ui.W, Ui.H))
+        addView(Ui.text(context, "Settings", 56f, Ui.text).apply { typeface = Fonts.of(context, Fonts.LIGHT) }, Ui.at(96, 40, 900))
+        addView(Ui.chip(context, "Done", 24f) { done() }.apply { background = glass() }, Ui.atRight(96, 48, 160, 64))
+
+        val added = Pictures.SLOTS.indices.count { pictures.has(it) }
+        section(0, "Pictures", "$added of ${Pictures.SLOTS.size} added (Hall, Mask, Tapestry, Throne)") {
+            listOf(chip("Open Pictures") { openPictures() })
+        }
+        choice(1, "Rotate every", Options.ROTATE_MINUTES.map { "$it min" to it }, { settings.rotateMinutes }) { settings.rotateMinutes = it }
+        choice(2, "Clock", listOf("24-hour" to true, "12-hour" to false), { settings.clock24 }) { settings.clock24 = it }
+        choice(3, "Weather", listOf("On" to true, "Off" to false), { settings.weatherOn }) { settings.weatherOn = it }
+        choice(4, "City", Options.CITIES.map { it.name to it.name }, { settings.city.name }) { settings.city = Options.city(it) }
+        choice(5, "Effects", listOf("Full" to false, "Calm" to true), { settings.calm }, "Calm: light, mist and dust; no jumps or camera move") { settings.calm = it }
+        choice(6, "Dim at night", listOf("Off" to false, "11 pm to 7 am" to true), { settings.dimNight }, "Softer and calm at night") { settings.dimNight = it }
+        choice(7, "Ticking sound", listOf("On" to true, "Off" to false), { settings.tick }, "A soft tick each second; never 11 pm to 7 am") { settings.tick = it }
+        if (Device.fireTv(context)) {
+            section(8, "Screensaver", "Fire TV doesn't allow other screensavers") { listOf(chip("Preview") { openPreview() }) }
+        } else {
+            section(8, "Screensaver", "In the TV's settings: Screen saver → Doomsday") {
+                listOf(chip("Open TV settings") { openDreamSettings() }, chip("Preview") { openPreview() })
+            }
+        }
+        val version = runCatching { context.packageManager.getPackageInfo(context.packageName, 0) }.getOrNull()
+        section(9, "About", "Doomsday ${version?.versionName ?: ""}, build ${version?.longVersionCode ?: 0}. Pictures only from your links, kept on this TV.") { emptyList() }
+    }
+
+    /** The TV's own screensaver settings (the app can't pick itself; the TV asks you). */
+    private fun openDreamSettings() {
+        val tries = listOf(android.provider.Settings.ACTION_DREAM_SETTINGS, android.provider.Settings.ACTION_DISPLAY_SETTINGS, android.provider.Settings.ACTION_SETTINGS)
+        for (a in tries) {
+            if (runCatching { context.startActivity(android.content.Intent(a).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)) }.isSuccess) return
+        }
+    }
+
+    /** A row: its name, its chips, and a short note after them. */
+    private fun section(n: Int, name: String, note: String?, chips: () -> List<TextView>) {
+        val y = 130 + n * 90
+        addView(Ui.text(context, name, 28f, Ui.text, bold = true), Ui.at(96, y + 12, 330))
+        val row = Ui.row(context, 14).apply { gravity = android.view.Gravity.CENTER_VERTICAL }
+        for (c in chips()) {
+            row.addView(c, LinearLayout.LayoutParams(-2, 64))
+            if (first == null) first = c
+        }
+        if (note != null) row.addView(Ui.text(context, note, 21f, Ui.soft), LinearLayout.LayoutParams(-2, -2).apply { marginStart = if (row.childCount > 0) 14 else 0 })
+        addView(row, Ui.at(440, y, -2, 64))
+    }
+
+    private fun <T> choice(n: Int, name: String, options: List<Pair<String, T>>, now: () -> T, note: String? = null, pick: (T) -> Unit) {
+        val made = ArrayList<Pair<TextView, Pair<String, T>>>()
+        val mark = { for ((c, o) in made) c.text = (if (now() == o.second) "●  " else "") + o.first }
+        section(n, name, note) {
+            options.map { o -> chip(o.first) { pick(o.second); groups.forEach { it() } }.also { made += it to o } }
+        }
+        groups += mark
+        mark()
+    }
+
+    private fun chip(label: String, onClick: () -> Unit): TextView = Ui.chip(context, label, 24f, onClick).apply { background = glass() }
+
+    /** Where the remote starts. */
+    fun focusFirst() { first?.requestFocus() }
+
+    override fun dispatchKeyEvent(e: KeyEvent): Boolean {
+        if (e.keyCode == KeyEvent.KEYCODE_BACK && e.action == KeyEvent.ACTION_UP) {
+            done()
+            return true
+        }
+        return super.dispatchKeyEvent(e)
+    }
+
+    private fun glass() = Ui.focusable(40f, Color.argb(90, 4, 14, 9), Color.argb(190, 10, 38, 24))
+}

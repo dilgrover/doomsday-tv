@@ -1,0 +1,19 @@
+# Gradle and Android Studio
+.gradle/
+build/
+*/build/
+local.properties
+.idea/
+*.iml
+.DS_Store
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Your own signing key and its passwords: never commit these
+keystore.properties
+*.jks
+*.keystore
+
+# Pictures you test with: they're yours, not the project's
+pictures/

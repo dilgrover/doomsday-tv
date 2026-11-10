@@ -1,0 +1,125 @@
+package com.avanhq.doomsday
+
+import android.app.Activity
+import android.content.Intent
+import android.os.Bundle
+import android.view.Gravity
+import android.view.View
+import android.widget.FrameLayout
+import com.avanhq.tv.Ui
+
+/**
+ * The Doomsday app: opens straight on the countdown; Pictures holds the four links.
+ * The screens are laid out for 1920 x 1080 and scaled to the TV.
+ *
+ * For tests and screenshots (adb `am start ... --es`/`--ei`/`--ez`):
+ * `--ez settings true` opens Settings, `--ez dream true` previews the screensaver, `--ei pictures N` opens Pictures on slot N, `--es type<N> TEXT` fills slot N's link (no
+ * download), `--ez summon true` summons Doom as if OK were held.
+ */
+class MainActivity : Activity() {
+    private lateinit var pictures: Pictures
+    private lateinit var countdown: DoomsdayScreen
+    private var links: PicturesScreen? = null
+    private var options: SettingsScreen? = null
+    private var preview: View? = null
+    private lateinit var settings: Settings
+    private lateinit var stage: FrameLayout
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pictures = Pictures(this)
+        settings = Settings(this)
+        val root = FrameLayout(this)
+        stage = FrameLayout(this).apply { clipChildren = false }
+        root.addView(stage, FrameLayout.LayoutParams(Ui.W, Ui.H, Gravity.TOP or Gravity.START))
+        root.addOnLayoutChangeListener { _, l, t, r, b, _, _, _, _ ->
+            val scale = minOf((r - l) / Ui.W.toFloat(), (b - t) / Ui.H.toFloat())
+            stage.pivotX = 0f
+            stage.pivotY = 0f
+            stage.scaleX = scale
+            stage.scaleY = scale
+        }
+        setContentView(root)
+        countdown = DoomsdayScreen(this, pictures, settings, { openPictures(it) }, { openSettings() })
+        stage.addView(countdown, FrameLayout.LayoutParams(Ui.W, Ui.H))
+        countdown.post { countdown.focusDefault() }
+        handle(intent)
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handle(intent)
+    }
+
+    private fun handle(i: Intent) {
+        if (i.getBooleanExtra("settings", false)) openSettings()
+        if (i.getBooleanExtra("dream", false)) openPreview()
+        if (i.hasExtra("pictures")) openPictures(i.getIntExtra("pictures", 0))
+        for (n in Pictures.SLOTS.indices) i.getStringExtra("type$n")?.let { text -> links?.type(n, text) }
+        if (i.getBooleanExtra("summon", false)) countdown.postDelayed({ countdown.summon() }, 3000)
+    }
+
+    private fun openPictures(slot: Int) {
+        if (links == null) {
+            val p = PicturesScreen(this, pictures) { closePictures(it) }
+            links = p
+            stage.addView(p, FrameLayout.LayoutParams(Ui.W, Ui.H))
+            countdown.visibility = View.INVISIBLE // its pictures rest while Pictures is open
+        }
+        links?.post { links?.focus(slot) }
+    }
+
+    private fun closePictures(slot: Int) {
+        links?.let { stage.removeView(it) }
+        links = null
+        if (options != null) { options?.focusFirst(); return } // opened from Settings: back there
+        countdown.visibility = View.VISIBLE
+        countdown.backTo(slot)
+    }
+
+    private fun openSettings() {
+        if (options == null) {
+            val s = SettingsScreen(this, settings, pictures, { openPictures(0) }, { openPreview() }) { closeSettings() }
+            options = s
+            stage.addView(s, FrameLayout.LayoutParams(Ui.W, Ui.H))
+            countdown.visibility = View.INVISIBLE
+        }
+        options?.post { options?.focusFirst() }
+    }
+
+    private fun closeSettings() {
+        options?.let { stage.removeView(it) }
+        options = null
+        countdown.visibility = View.VISIBLE
+        countdown.reload()
+        countdown.applySettings()
+    }
+
+    /** The screensaver as it will look (DoomDream's own view), until Back or OK. */
+    private fun openPreview() {
+        if (preview != null) return
+        val v = DoomDream.view(this).apply { isFocusable = true; isFocusableInTouchMode = true }
+        preview = v
+        (window.decorView as android.view.ViewGroup).addView(v, android.view.ViewGroup.LayoutParams(-1, -1))
+        v.requestFocus()
+        v.setOnKeyListener { _, code, e ->
+            if (e.action == android.view.KeyEvent.ACTION_UP && (code == android.view.KeyEvent.KEYCODE_BACK || code == android.view.KeyEvent.KEYCODE_DPAD_CENTER || code == android.view.KeyEvent.KEYCODE_BUTTON_A)) { closePreview(); true } else true
+        }
+    }
+
+    private fun closePreview() {
+        preview?.let { (window.decorView as android.view.ViewGroup).removeView(it) }
+        preview = null
+        countdown.resumeLook()
+        options?.focusFirst() ?: countdown.focusDefault()
+    }
+
+    override fun onBackPressed() {
+        when {
+            preview != null -> closePreview()
+            links != null -> closePictures(0)
+            options != null -> closeSettings()
+            else -> super.onBackPressed()
+        }
+    }
+}

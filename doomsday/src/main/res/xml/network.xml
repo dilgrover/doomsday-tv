@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Plain http is let through only so a picture can come from the home network (a link to a
+     computer at home); the app itself refuses http anywhere else (Links.problem). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
