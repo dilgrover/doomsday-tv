@@ -45,10 +45,10 @@ class KeyboardView(context: Context) : View(context) {
         visibility = GONE
     }
 
-    /** Open for the link of [name], starting from [typed]. */
-    fun open(name: String, typed: String) {
-        keys = Keys(typed)
-        title = "$name link"
+    /** Open for the link of [name], starting from [typed]; [label] and [rows] for other uses (a city). */
+    fun open(name: String, typed: String, label: String = "$name link", rows: List<List<Pair<String, Int>>> = Keys.ROWS) {
+        keys = Keys(typed, rows)
+        title = label
         visibility = VISIBLE
         translationY = HEIGHT.toFloat()
         animate().translationY(0f).setDuration(if (Ui.still) 0 else 320).setInterpolator(Ui.EASE).start()
@@ -124,7 +124,7 @@ class KeyboardView(context: Context) : View(context) {
         // The keys.
         val unit = (w - 72f - GAP * (Keys.UNITS - 1)) / Keys.UNITS
         text.textAlign = Paint.Align.CENTER
-        for ((r, row) in Keys.ROWS.withIndex()) {
+        for ((r, row) in keys.rows.withIndex()) {
             val y = TOP + r * (KEY_H + GAP)
             for ((col, key) in row.withIndex()) {
                 val x = 36f + keys.start(r, col) * (unit + GAP)

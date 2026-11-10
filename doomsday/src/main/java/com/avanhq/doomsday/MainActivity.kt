@@ -13,7 +13,7 @@ import com.avanhq.tv.Ui
  * The screens are laid out for 1920 x 1080 and scaled to the TV.
  *
  * For tests and screenshots (adb `am start ... --es`/`--ei`/`--ez`):
- * `--ez settings true` opens Settings, `--ez dream true` previews the screensaver, `--ei pictures N` opens Pictures on slot N, `--es type<N> TEXT` fills slot N's link (no
+ * `--ez settings true` opens Settings, `--ez city true` its City screen, `--ez dream true` previews the screensaver, `--ei pictures N` opens Pictures on slot N, `--es type<N> TEXT` fills slot N's link (no
  * download), `--ez summon true` summons Doom as if OK were held.
  */
 class MainActivity : Activity() {
@@ -21,6 +21,7 @@ class MainActivity : Activity() {
     private lateinit var countdown: DoomsdayScreen
     private var links: PicturesScreen? = null
     private var options: SettingsScreen? = null
+    private var town: CityScreen? = null
     private var preview: View? = null
     private lateinit var settings: Settings
     private lateinit var stage: FrameLayout
@@ -53,6 +54,7 @@ class MainActivity : Activity() {
 
     private fun handle(i: Intent) {
         if (i.getBooleanExtra("settings", false)) openSettings()
+        if (i.getBooleanExtra("city", false)) { openSettings(); openCity() }
         if (i.getBooleanExtra("dream", false)) openPreview()
         if (i.hasExtra("pictures")) openPictures(i.getIntExtra("pictures", 0))
         for (n in Pictures.SLOTS.indices) i.getStringExtra("type$n")?.let { text -> links?.type(n, text) }
@@ -79,7 +81,7 @@ class MainActivity : Activity() {
 
     private fun openSettings() {
         if (options == null) {
-            val s = SettingsScreen(this, settings, pictures, { openPictures(0) }, { openPreview() }) { closeSettings() }
+            val s = SettingsScreen(this, settings, pictures, { openPictures(0) }, { openPreview() }, { openCity() }) { closeSettings() }
             options = s
             stage.addView(s, FrameLayout.LayoutParams(Ui.W, Ui.H))
             countdown.visibility = View.INVISIBLE
@@ -93,6 +95,29 @@ class MainActivity : Activity() {
         countdown.visibility = View.VISIBLE
         countdown.reload()
         countdown.applySettings()
+    }
+
+    /** Settings → City: Automatic, or any town by name. */
+    private fun openCity() {
+        if (town == null) {
+            val c = CityScreen(this, settings) { closeCity() }
+            town = c
+            stage.addView(c, FrameLayout.LayoutParams(Ui.W, Ui.H))
+        }
+        town?.post { town?.focusFirst() }
+    }
+
+    private fun closeCity() {
+        town?.let { stage.removeView(it) }
+        town = null
+        options?.refresh()
+        options?.focusFirst()
+    }
+
+    /** Back from the TV's Accessibility settings: the Home button's line as it is now. */
+    override fun onResume() {
+        super.onResume()
+        options?.refresh()
     }
 
     /** The screensaver as it will look (DoomDream's own view), until Back or OK. */
@@ -117,6 +142,7 @@ class MainActivity : Activity() {
     override fun onBackPressed() {
         when {
             preview != null -> closePreview()
+            town != null -> closeCity()
             links != null -> closePictures(0)
             options != null -> closeSettings()
             else -> super.onBackPressed()

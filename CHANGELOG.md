@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1 (November 2026)
+
+- City: **Automatic** finds your town from your internet connection (once a day), or **Search
+  for a town** finds any town in the world with the app's keyboard (now with a space key).
+  The fixed list of cities is gone.
+- **Home button**: open Doomsday when Home is pressed. On Google TV through Accessibility (you
+  switch it on); on Android TV boxes with a home choice through "Offer as home app". Fire TV may
+  block it. Doomsday leaves Home alone when another app already handles it.
+
 ## 1.0 (November 2026)
 
 - The countdown to Avengers: Doomsday (UK, Wednesday 16 December 2026) in the film's style:

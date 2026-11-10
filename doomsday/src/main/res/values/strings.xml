@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Doomsday</string>
+    <string name="home_watcher_label">Doomsday opens when you press Home</string>
+    <string name="home_watcher_description">Opens Doomsday when the TV\'s own home screen comes up after you press Home. It only notices which app opened, never what is on the screen. Doomsday stays out of the way if another app (such as Avan) already does this.</string>
 </resources>

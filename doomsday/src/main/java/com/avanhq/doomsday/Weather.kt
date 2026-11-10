@@ -8,9 +8,11 @@ import org.json.JSONObject
 import java.util.concurrent.TimeUnit
 
 /**
- * The weather line under the clock ("London · Cloudy 10°"), from Open-Meteo (free, no key; D,
- * 10 Nov). Fetched when the countdown opens and every 30 minutes; offline, the line just goes.
- * The reading of the answer is plain functions, tested on the JVM (WeatherTest).
+ * The weather line under the clock ("Leeds · Cloudy 10°"), from Open-Meteo (free, no key).
+ * Fetched when the countdown opens and every 30 minutes; offline, the line just goes.
+ * The town is the one chosen in Settings, or with Automatic the one the internet connection is
+ * in ([Geo], looked up once a day). The reading of the answer is plain functions, tested on the
+ * JVM (WeatherTest).
  */
 class Weather(private val shown: (String?) -> Unit) {
     companion object {
@@ -45,7 +47,7 @@ class Weather(private val shown: (String?) -> Unit) {
 
     private val main = Handler(Looper.getMainLooper())
     private val client = OkHttpClient.Builder().connectTimeout(10, TimeUnit.SECONDS).readTimeout(10, TimeUnit.SECONDS).build()
-    private var city: Options.City? = null
+    private var settings: Settings? = null
 
     private val tick = object : Runnable {
         override fun run() {
@@ -54,24 +56,37 @@ class Weather(private val shown: (String?) -> Unit) {
         }
     }
 
-    /** Show [c]'s weather now and every 30 minutes (null: off). */
-    fun start(c: Options.City?) {
+    /** Show the weather for [s]'s town now and every 30 minutes (if it's on). */
+    fun start(s: Settings) {
         stop()
-        city = c
-        if (c == null) shown(null) else main.post(tick)
+        settings = s
+        if (!s.weatherOn) shown(null) else main.post(tick)
     }
 
     fun stop() = main.removeCallbacks(tick)
 
     private fun fetch() {
-        val c = city ?: return
+        val s = settings ?: return
         Thread {
-            val got = runCatching {
-                client.newCall(Request.Builder().url(url(c)).build()).execute().use { r ->
-                    if (r.isSuccessful) line(c.name, r.body?.string().orEmpty()) else null
-                }
-            }.getOrNull()
-            main.post { if (city === c) shown(got) }
+            val c = town(s)
+            val got = get(url(c))?.let { line(c.name, it) }
+            main.post { if (settings === s) shown(got) }
         }.start()
     }
+
+    /** The town to show: the chosen one, or (Automatic) the one found today, finding it if need be. */
+    private fun town(s: Settings): Options.City {
+        if (!s.cityAuto) return s.chosenCity ?: Options.LONDON
+        val known = s.foundCity
+        if (known != null && System.currentTimeMillis() - s.foundAt < Geo.DAY_MS) return known
+        val found = listOf(Geo.IP, Geo.IP_SPARE).firstNotNullOfOrNull { u -> get(u)?.let(Geo::fromIp) }
+        if (found != null) s.foundCity = found
+        return found ?: known ?: Options.LONDON
+    }
+
+    private fun get(url: String): String? = runCatching {
+        client.newCall(Request.Builder().url(url).header("User-Agent", "Doomsday-TV").build()).execute().use { r ->
+            if (r.isSuccessful) r.body?.string() else null
+        }
+    }.getOrNull()
 }

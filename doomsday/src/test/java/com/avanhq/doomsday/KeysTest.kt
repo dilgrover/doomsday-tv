@@ -72,4 +72,21 @@ class KeysTest {
         assertEquals(listOf("netflix", "youtube", "prime"), Device.appsToShow(tv, phone, fire = true, self = "com.avanhq.doomsday"))
         assertEquals(listOf("youtube", "prime"), Device.appsToShow(emptyList(), phone, fire = false, self = "com.avanhq.doomsday"))
     }
+
+    @Test fun aTownsNameWithASpace() {
+        val k = Keys(rows = Keys.CITY_ROWS)
+        fun tap(key: String): Boolean {
+            val r = Keys.CITY_ROWS.indexOfFirst { row -> row.any { it.first == key } }
+            while (k.row != r) k.down()
+            val c = Keys.CITY_ROWS[r].indexOfFirst { it.first == key }
+            while (k.col != c) k.right()
+            return k.press()
+        }
+        for (ch in "new") tap(ch.toString())
+        tap(Keys.SPACE)
+        for (ch in "york") tap(ch.toString())
+        assertEquals("new york", k.text)
+        assertTrue(tap(Keys.DONE))
+        for (row in Keys.CITY_ROWS) assertEquals(Keys.UNITS, row.sumOf { it.second })
+    }
 }

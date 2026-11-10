@@ -6,8 +6,8 @@ import java.time.format.DateTimeFormatter
 
 /**
  * The app's few settings: how often Rotate
- * changes picture, the clock's hours, the weather line with its city, the effects (full or
- * calm) and dimming at night. The choices and the
+ * changes picture, the clock's hours, the weather line and its town (found automatically or
+ * chosen, [Geo]), the effects (full or calm) and dimming at night. The choices and the
  * clock's words are plain functions ([Options]), tested on the JVM (SettingsTest).
  */
 class Settings(context: Context) {
@@ -25,9 +25,25 @@ class Settings(context: Context) {
         get() = prefs.getBoolean("weather", true)
         set(v) = prefs.edit().putBoolean("weather", v).apply()
 
-    var city: Options.City
-        get() = Options.city(prefs.getString("city", null))
-        set(v) = prefs.edit().putString("city", v.name).apply()
+    /** The weather's town: found from the internet connection (Automatic), or one chosen. */
+    var cityAuto: Boolean
+        get() = prefs.getBoolean("city_auto", true)
+        set(v) = prefs.edit().putBoolean("city_auto", v).apply()
+
+    var chosenCity: Options.City?
+        get() = Options.decode(prefs.getString("city_chosen", null))
+        set(v) = prefs.edit().putString("city_chosen", v?.let(Options::encode)).apply()
+
+    /** The town Automatic last found, and when (found again once a day). */
+    var foundCity: Options.City?
+        get() = Options.decode(prefs.getString("city_found", null))
+        set(v) = prefs.edit().putString("city_found", v?.let(Options::encode)).putLong("city_found_at", System.currentTimeMillis()).apply()
+
+    val foundAt: Long get() = prefs.getLong("city_found_at", 0L)
+
+    /** The town the weather is for now, as far as is known without asking the internet. */
+    val city: Options.City
+        get() = (if (cityAuto) foundCity else chosenCity) ?: chosenCity ?: Options.LONDON
 
     /** Effects: full, or calm (light, mist and dust; no jumps, no camera move). */
     var calm: Boolean
@@ -50,17 +66,17 @@ object Options {
 
     val ROTATE_MINUTES = listOf(1, 5, 15)
 
-    val CITIES = listOf(
-        City("London", 51.5072, -0.1276),
-        City("Birmingham", 52.4862, -1.8904),
-        City("Manchester", 53.4808, -2.2426),
-        City("Edinburgh", 55.9533, -3.1883),
-        City("Delhi", 28.6139, 77.2090),
-        City("Dubai", 25.2048, 55.2708),
-    )
+    /** Until the town is found, or if it can't be. */
+    val LONDON = City("London", 51.5072, -0.1276)
 
-    /** The city called [name], or London. */
-    fun city(name: String?): City = CITIES.firstOrNull { it.name == name } ?: CITIES[0]
+    /** A town saved as "name|lat|lon" (a name has no "|"). */
+    fun encode(c: City): String = "${c.name.replace('|', ' ')}|${c.lat}|${c.lon}"
+
+    fun decode(s: String?): City? = s?.split('|')?.takeIf { it.size == 3 }?.let { p ->
+        val lat = p[1].toDoubleOrNull()
+        val lon = p[2].toDoubleOrNull()
+        if (p[0].isBlank() || lat == null || lon == null) null else City(p[0], lat, lon)
+    }
 
     private val H24 = DateTimeFormatter.ofPattern("HH:mm")
     private val H12 = DateTimeFormatter.ofPattern("h:mm")

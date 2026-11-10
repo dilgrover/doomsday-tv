@@ -72,16 +72,21 @@ exactly (glowing eyes, fire in the hands); any other picture gets everything els
 
 ## Settings
 
-Rotate every (1, 5 or 15 minutes) · Clock (24- or 12-hour) · Weather (on/off, and the city) ·
-Effects (Full, or Calm: no jumps or camera move) · Dim at night (11 pm to 7 am) · Ticking sound
-(on/off; never 11 pm to 7 am) · Screensaver · About. Details: [docs/SETTINGS.md](docs/SETTINGS.md).
+Rotate every (1, 5 or 15 minutes) · Clock (24- or 12-hour) · Weather (on/off) · City
+(Automatic from your connection, or search any town) · Effects (Full, or Calm: no jumps or camera
+move) · Dim at night (11 pm to 7 am) · Ticking sound (on/off; never 11 pm to 7 am) · Screensaver ·
+Home button (Doomsday on Home: Google TV via Accessibility, home-choice boxes via Offer as home
+app; Fire TV may block it) · About. Details: [docs/SETTINGS.md](docs/SETTINGS.md).
 
 ## Privacy
 
 No accounts, no ads, no analytics. The app only goes online to:
 - download a picture from **your** link, when you press Download;
-- read the weather for your city from [Open-Meteo](https://open-meteo.com) (no key, no account),
-  every 30 minutes while the app is open, if Weather is on.
+- read the weather for your town from [Open-Meteo](https://open-meteo.com) (no key, no account),
+  every 30 minutes while the app is open, if Weather is on;
+- with City on **Automatic**, find your town from your internet connection once a day
+  ([ipwho.is](https://ipwho.is), or [ipapi.co](https://ipapi.co) if that fails; no key);
+- when you search for a town, ask Open-Meteo's place search for that name.
 
 ## Questions and problems
 

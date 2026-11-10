@@ -33,5 +33,15 @@ Yes, once your pictures are downloaded. The weather just hides.
 The heading changes to "Avengers: Doomsday is here".
 
 **Is my data sent anywhere?**
-No. The only network use is downloading your own picture links and the weather from
-Open-Meteo.
+No. The only network use is downloading your own picture links, the weather and town search from
+Open-Meteo, and (with City on Automatic) finding your town from your connection with ipwho.is or
+ipapi.co, once a day. Choose a town yourself and that lookup stops.
+
+**The weather shows the wrong town**
+Automatic goes by your internet connection, which can be a nearby big town (or the VPN's).
+Settings → City → Search for a town, and pick yours.
+
+**Can Doomsday be my home screen?**
+On Google TV yes, through Settings → Home button → Open Accessibility. On boxes that let you
+pick a home app, use Offer as home app. On Fire TV, Amazon may block it. Details:
+[SETTINGS.md](SETTINGS.md#the-home-button).

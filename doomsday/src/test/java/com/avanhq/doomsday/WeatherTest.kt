@@ -37,7 +37,7 @@ class WeatherTest {
 
     @Test
     fun theAskIsForTheCity() {
-        val url = Weather.url(Options.city("Delhi"))
+        val url = Weather.url(Options.City("Delhi", 28.6139, 77.209))
         assertTrue(url, url.startsWith("https://api.open-meteo.com/") && "latitude=28.6139" in url && "longitude=77.209" in url)
     }
 }

@@ -286,7 +286,7 @@ class DoomsdayScreen(
     fun applySettings() {
         resumeLook()
         tock()
-        weather.start(if (settings.weatherOn) settings.city else null)
+        weather.start(settings)
         apps.refresh()
         gear.requestFocus()
     }
@@ -307,7 +307,7 @@ class DoomsdayScreen(
         ticker.post(second)
         stage.open()
         reload()
-        weather.start(if (settings.weatherOn) settings.city else null)
+        weather.start(settings)
     }
 
     override fun onDetachedFromWindow() {

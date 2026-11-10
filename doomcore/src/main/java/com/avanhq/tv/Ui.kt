@@ -73,7 +73,7 @@ object Ui {
         }
 
     // Every focus ring made, so a screen with its own look can colour them while it shows
-    // (Doomsday: Doom's green, not the accent; D, 10 Nov: "10/10, a reel worth theme").
+    // (Doomsday: Doom's green, not the accent).
     private val rings = java.util.WeakHashMap<GradientDrawable, Int>()
     private var ringOverride: Int? = null
 

@@ -8,12 +8,29 @@ Open **Settings** from the buttons along the bottom. Each choice is saved as soo
 | **Rotate every** | 1 · 5 · 15 min | How often **Rotate** moves to the next picture. |
 | **Clock** | 24-hour · 12-hour | The clock at the top right. |
 | **Weather** | On · Off | The weather under the clock, from Open-Meteo, every 30 minutes. Hidden quietly when offline. |
-| **City** | London · Birmingham · Manchester · Edinburgh · Delhi · Dubai | Where the weather is for. |
+| **City** | Choose a town | Where the weather is for. **Automatic** (the default) finds your town from your internet connection, once a day. Or **Search for a town**: type any town's name on the app's keyboard and pick it (towns with the same name show their region and country). |
 | **Effects** | Full · Calm | Calm keeps the light, mist and dust but drops the energy jumps, the camera move and the automatic surges. Summon still works. |
 | **Dim at night** | Off · 11 pm to 7 am | Darker and calm overnight. |
 | **Ticking sound** | On · Off | A soft tick each second while the countdown is on screen. Never between 11 pm and 7 am, never in the screensaver. |
 | **Screensaver** | Open TV settings · Preview | Google TV / Android TV only (Fire TV doesn't allow it). |
+| **Home button** | Open Accessibility · Offer as home app | Make Home open Doomsday (see below). Off until you turn it on. |
 | **About** | | The version. |
+
+![City: Automatic, or search for any town](images/doomsday-app-city.png)
+
+## The Home button
+
+TVs differ in whether another app may be the home screen:
+
+| TV | How | Works? |
+|---|---|---|
+| **Google TV** (Chromecast with Google TV, Sony, TCL…) | Settings → Home button → **Open Accessibility**, then switch on **"Doomsday opens when you press Home"** | Yes: Home shows Google TV's home for a moment, then Doomsday. |
+| **Android TV boxes that let you pick a home app** (e.g. Nvidia Shield, many boxes) | Settings → Home button → **Offer as home app**, then press Home and choose Doomsday | Yes. |
+| **Amazon Fire TV** | Open Accessibility as on Google TV | Maybe: Amazon's updates have been blocking home replacements. Try it; if Home still shows Fire TV's home, it isn't allowed on your model. |
+
+If another app already does this (for example Avan, Projectivy or Button Mapper), Doomsday leaves
+Home to it and Settings says so. Doomsday never changes a TV setting itself; turn it off the
+same way you turned it on.
 
 ## The buttons on the countdown
 

@@ -9,14 +9,19 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-/** The settings' choices (Options): the cities, Rotate's minutes, the clock's words, the night
- *  hours, and release day (Countdown.heading). */
+/** The settings' choices (Options): a town kept and read back, Rotate's minutes, the clock's
+ *  words, the night hours, and release day (Countdown.heading). */
 class SettingsTest {
     @Test
-    fun anUnknownCityIsLondon() {
-        assertEquals("London", Options.city(null).name)
-        assertEquals("London", Options.city("Atlantis").name)
-        assertEquals("Birmingham", Options.city("Birmingham").name)
+    fun aTownIsKeptAndReadBack() {
+        val back = Options.decode(Options.encode(Options.City("Saint-Denis|x", 48.9362, 2.3574)))!!
+        assertEquals("Saint-Denis x", back.name)
+        assertEquals(48.9362, back.lat, 1e-9)
+        assertEquals(2.3574, back.lon, 1e-9)
+        assertEquals(null, Options.decode(null))
+        assertEquals(null, Options.decode("London"))
+        assertEquals(null, Options.decode("London|north|0"))
+        assertEquals("London", Options.LONDON.name)
     }
 
     @Test

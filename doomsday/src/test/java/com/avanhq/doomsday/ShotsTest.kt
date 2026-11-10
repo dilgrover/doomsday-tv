@@ -34,7 +34,7 @@ class ShotsTest {
         return null
     }
 
-    private fun shot(name: String, intent: Intent = Intent(), press: String? = null, focus: String? = null) {
+    private fun shot(name: String, intent: Intent = Intent(), press: String? = null, focus: String? = null, act: (View) -> Unit = {}) {
         try {
             val controller = Robolectric.buildActivity(MainActivity::class.java, intent.setClassName("com.avanhq.doomsday", "com.avanhq.doomsday.MainActivity")).setup()
             val activity = controller.get()
@@ -48,6 +48,7 @@ class ShotsTest {
                     v.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_CENTER))
                 }
             }
+            act(activity.window.decorView)
             shadowOf(Looper.getMainLooper()).idleFor(Duration.ofMillis(600))
             val bmp = Bitmap.createBitmap(1920, 1080, Bitmap.Config.ARGB_8888)
             activity.window.decorView.draw(Canvas(bmp))
@@ -72,7 +73,15 @@ class ShotsTest {
         )
         // Pictures, as it first opens.
         shot("doomsday-app-pictures", Intent().putExtra("pictures", 0))
-        // Settings.
+        // Settings, with the town found automatically and the Home button's line.
         shot("doomsday-app-settings", Intent().putExtra("settings", true))
+        // City: what a search for Richmond finds (the answer given here, no network off the TV).
+        shot("doomsday-app-city", Intent().putExtra("city", true)) { root ->
+            fun city(v: View): CityScreen? = v as? CityScreen ?: (v as? ViewGroup)?.let { g -> (0 until g.childCount).firstNotNullOfOrNull { city(g.getChildAt(it)) } }
+            city(root)?.show("Richmond", Geo.results("""{"results":[
+                {"name":"Richmond","latitude":51.461,"longitude":-0.303,"country":"United Kingdom","admin1":"England"},
+                {"name":"Richmond","latitude":37.55,"longitude":-77.46,"country":"United States","admin1":"Virginia"},
+                {"name":"Richmond","latitude":-33.6,"longitude":150.75,"country":"Australia","admin1":"New South Wales"}]}"""))
+        }
     }
 }
