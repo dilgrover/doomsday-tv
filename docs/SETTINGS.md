@@ -5,7 +5,7 @@ Open **Settings** from the buttons along the bottom. Each choice is saved as soo
 | Setting | Choices | What it does |
 |---|---|---|
 | **Pictures** | Open Pictures | The four picture slots and their links ([PICTURES.md](PICTURES.md)). |
-| **Apps** | Order and hide | Every app on the TV in the row's order (hidden ones dimmed). Select an app, then **Move earlier**, **Move later**, **To the front**, or **Hide** / **Show**. On the countdown, hold OK on an app for **Move left · Move right · Hide**. |
+| **Apps** | Order and hide | Every app on the TV in the row's order. **OK on an app picks it up**: the arrows move it (Left/Right one place, Up/Down a row), **OK puts it down**, **Back puts it back**. OK on a hidden app shows it again. **Hide** hides the selected app; **Hidden apps: shown / not shown** and **Reset order** are along the top. On the countdown, **hold OK on an app** in the row: it lifts, Left/Right move it, OK drops it, Back cancels, Down asks to hide it. |
 | **Rotate every** | 1 · 5 · 15 min | How often **Rotate** moves to the next picture. |
 | **Clock** | 24-hour · 12-hour | The clock at the top right. |
 | **Weather** | On · Off | The weather under the clock, from Open-Meteo, every 30 minutes. Hidden quietly when offline. |
@@ -18,6 +18,8 @@ Open **Settings** from the buttons along the bottom. Each choice is saved as soo
 | **About** | | The version. |
 
 ![Apps: the row's order, hide or show](images/doomsday-app-apps.png)
+
+![On the countdown: hold OK on an app to lift it and move it](images/doomsday-app-lifted.png)
 
 ![City: Automatic, or search for any town](images/doomsday-app-city.png)
 

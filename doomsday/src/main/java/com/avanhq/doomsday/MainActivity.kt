@@ -12,7 +12,7 @@ import com.avanhq.tv.Ui
  * The Doomsday app: opens straight on the countdown; Pictures holds the four links.
  * The screens are laid out for 1920 x 1080 and scaled to the TV.
  *
- * For tests and screenshots (adb `am start ... --es`/`--ei`/`--ez`):
+ * For the VM's tests and screenshots (adb `am start ... --es`/`--ei`/`--ez`):
  * `--ez settings true` opens Settings, `--ez city true` its City screen, `--ez dream true` previews the screensaver, `--ei pictures N` opens Pictures on slot N, `--es type<N> TEXT` fills slot N's link (no
  * download), `--ez summon true` summons Doom as if OK were held.
  */
@@ -47,6 +47,15 @@ class MainActivity : Activity() {
         // The first time: "Make Doomsday your home screen?" (not if another app has Home).
         if (Home.shouldAsk(settings.homeAsked, Home.enabled(this), packageName) || intent.getBooleanExtra("welcome", false)) openWelcome()
         handle(intent)
+        // An app installed or updated: the row shows it (and its new banner) straight away.
+        packages = com.avanhq.tv.PackageWatch.register(this) { AppsRow.refreshAll() }
+    }
+
+    private var packages: android.content.BroadcastReceiver? = null
+
+    override fun onDestroy() {
+        packages?.let { runCatching { unregisterReceiver(it) } }
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -58,7 +67,7 @@ class MainActivity : Activity() {
         if (i.getBooleanExtra("settings", false)) openSettings()
         if (i.getBooleanExtra("city", false)) { openSettings(); openCity() }
         if (i.getBooleanExtra("apps", false)) { openSettings(); openApps() }
-        i.getStringExtra("appmenu")?.let { pkg -> countdown.post { countdown.openAppMenu(pkg) } }
+        i.getStringExtra("lift")?.let { pkg -> countdown.post { countdown.liftApp(pkg) } }
         if (i.getBooleanExtra("dream", false)) openPreview()
         if (i.hasExtra("pictures")) openPictures(i.getIntExtra("pictures", 0))
         for (n in Pictures.SLOTS.indices) i.getStringExtra("type$n")?.let { text -> links?.type(n, text) }

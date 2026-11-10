@@ -10,13 +10,14 @@ import android.widget.FrameLayout
 import android.widget.HorizontalScrollView
 import android.widget.ImageView
 import android.widget.TextView
+import com.avanhq.tv.LiftRow
 import com.avanhq.tv.Ui
 
 /**
- * The TV's apps, each with its own banner, in your order ([AppOrder]: Settings → Apps, or hold
- * OK on an app to move or hide it). It stays out of sight until the remote goes to it, so it
- * doesn't cover the picture.
- * OK opens the app.
+ * The TV's apps, each with its own banner, in your order
+ * ([AppOrder]: Settings → Apps, or hold OK on an app to lift it and move it, [LiftRow]). It
+ * stays out of sight until the remote goes to it, so it doesn't cover the picture. OK opens the app. Rebuilt when an app is installed or updated
+ * ([refreshAll]), so new banners show straight away.
  */
 class AppsRow(context: Context, private val settings: Settings) : HorizontalScrollView(context) {
     class App(val pkg: String, val label: String, val banner: Drawable?, val launch: Intent)
@@ -26,6 +27,35 @@ class AppsRow(context: Context, private val settings: Settings) : HorizontalScro
     /** The packages as they're shown now, first to last. */
     var shown: List<String> = emptyList()
         private set
+
+    // Hold OK on an app: it lifts, the arrows move it, OK drops it (Google TV's own way).
+    private val lift = LiftRow(
+        strip,
+        face = { (it as? FrameLayout)?.getChildAt(0) },
+        caption = { (it as? FrameLayout)?.getChildAt(1) as? TextView },
+        onDrop = { order -> settings.appOrder = order; shown = order },
+        onHide = { pkg -> hide(pkg) },
+        settle = { box ->
+            (box as? FrameLayout)?.getChildAt(0)?.animate()?.scaleX(1.1f)?.scaleY(1.1f)?.translationY(0f)?.setDuration(250)?.start()
+            smoothScrollTo(box.left - 96 * 4, 0)
+        },
+    )
+
+    /** Whether an app is lifted (the remote moves it). */
+    val lifting: Boolean get() = lift.active
+
+    /** Lift [pkg] (OK held on it). */
+    fun lift(pkg: String) = lift.lift(pkg)
+
+    /** A key while an app is lifted. */
+    fun liftKey(e: android.view.KeyEvent): Boolean = lift.key(e)
+
+    private fun hide(pkg: String) {
+        val i = shown.indexOf(pkg)
+        settings.hiddenApps = AppOrder.toggle(settings.hiddenApps, pkg)
+        refresh()
+        (shown.getOrNull(i) ?: shown.lastOrNull())?.let { focus(it) }
+    }
 
 
     init {
@@ -38,16 +68,19 @@ class AppsRow(context: Context, private val settings: Settings) : HorizontalScro
         addView(strip)
         alpha = 0f
         refresh()
+        live.add(this)
     }
 
     /** Whether the focus is on one of the apps. */
     fun holds(v: View?): Boolean = v != null && generateSequence(v.parent) { it.parent }.any { it === this }
 
     fun refresh() {
+        val had = appOf(findFocus())
         strip.removeAllViews()
         val list = load(context, settings, all = false)
         shown = list.map { it.pkg }
         for (a in list) strip.addView(tile(a), android.widget.LinearLayout.LayoutParams(TILE_W, TILE_H + 40))
+        had?.let { focus(it) }
     }
 
     /** The app whose tile [v] is (the focused one), or null. */
@@ -78,6 +111,11 @@ class AppsRow(context: Context, private val settings: Settings) : HorizontalScro
     }
 
     companion object Load {
+        private val live = java.util.Collections.newSetFromMap(java.util.WeakHashMap<AppsRow, Boolean>())
+
+        /** Every row shown now, rebuilt (an app was installed, updated or removed). */
+        fun refreshAll() = live.toList().forEach { if (!it.lifting) it.refresh() }
+
         const val TILE_W = 240
         const val TILE_H = 135
         const val HEIGHT = TILE_H + 70

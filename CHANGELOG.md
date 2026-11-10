@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3 (November 2026)
+
+- **Moving apps, the Google TV way**: hold OK on an app in the row and it lifts; Left/Right
+  carry it along while the others slide aside; OK puts it down, Back puts it back, Down asks to
+  hide it. Settings → Apps works the same way (OK picks an app up, the arrows move it), with
+  Hidden apps shown / not shown and Reset order. The Move left · Move right menu is gone.
+- The apps row shows a newly installed or updated app (and its new banner) straight away.
+
 ## 1.2 (November 2026)
 
 - **Apps**: choose the apps in the row and their order (Settings → Apps: Move earlier, Move

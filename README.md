@@ -74,7 +74,7 @@ exactly (glowing eyes, fire in the hands); any other picture gets everything els
 
 ## Settings
 
-Apps (the row's order: move or hide each app; or hold OK on an app on the countdown) · Rotate
+Apps (the row's order: OK on an app picks it up, the arrows move it, OK puts it down; on the countdown, hold OK on an app) · Rotate
 every (1, 5 or 15 minutes) · Clock (24- or 12-hour) · Weather (on/off) · City
 (Automatic from your connection, or search any town) · Effects (Full, or Calm: no jumps or camera
 move) · Dim at night (11 pm to 7 am) · Ticking sound (on/off; never 11 pm to 7 am) · Screensaver ·
