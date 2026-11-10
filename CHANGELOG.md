@@ -1,5 +1,10 @@
 # Changelog
 
+
+## 1.3.1
+
+- Releases: the APK is built and attached to each GitHub release automatically.
+
 ## 1.3 (November 2026)
 
 - **Moving apps, the Google TV way**: hold OK on an app in the row and it lifts; Left/Right
