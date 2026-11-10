@@ -1,6 +1,11 @@
 # Changelog
 
 
+## 1.3.3
+
+- Safer: a very large picture is shrunk before it is opened, so it can't run the TV out of memory.
+- The released app ignores the test shortcuts other apps could send it (they work only in debug builds).
+
 ## 1.3.2
 
 - Releases are signed with the project's own key, so each new version installs over the last one (uninstall a 1.3 or 1.3.1 download once first).

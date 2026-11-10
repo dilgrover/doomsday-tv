@@ -45,7 +45,7 @@ class MainActivity : Activity() {
         stage.addView(countdown, FrameLayout.LayoutParams(Ui.W, Ui.H))
         countdown.post { countdown.focusDefault() }
         // The first time: "Make Doomsday your home screen?" (not if another app has Home).
-        if (Home.shouldAsk(settings.homeAsked, Home.enabled(this), packageName) || intent.getBooleanExtra("welcome", false)) openWelcome()
+        if (Home.shouldAsk(settings.homeAsked, Home.enabled(this), packageName) || (BuildConfig.DEBUG && intent.getBooleanExtra("welcome", false))) openWelcome()
         handle(intent)
         // An app installed or updated: the row shows it (and its new banner) straight away.
         packages = com.avanhq.tv.PackageWatch.register(this) { AppsRow.refreshAll() }
@@ -64,6 +64,9 @@ class MainActivity : Activity() {
     }
 
     private fun handle(i: Intent) {
+        // Shortcuts for testing on a TV (adb). Not in the released app: any app on the TV can
+        // start this one, so a release build ignores them.
+        if (!BuildConfig.DEBUG) return
         if (i.getBooleanExtra("settings", false)) openSettings()
         if (i.getBooleanExtra("city", false)) { openSettings(); openCity() }
         if (i.getBooleanExtra("apps", false)) { openSettings(); openApps() }

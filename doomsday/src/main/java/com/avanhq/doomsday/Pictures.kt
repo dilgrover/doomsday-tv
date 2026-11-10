@@ -25,6 +25,7 @@ class Pictures(private val context: Context) {
     class Slot(val key: String, val name: String)
 
     companion object {
+        private const val MAX_PIXELS = 16_000_000L
         val SLOTS = listOf(Slot("hall", "Hall"), Slot("mask", "Mask"), Slot("tapestry", "Tapestry"), Slot("throne", "Throne"))
     }
 
@@ -114,6 +115,9 @@ class Pictures(private val context: Context) {
         if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
         var sample = 1
         while (bounds.outWidth / (sample * 2) >= 1920 && bounds.outHeight / (sample * 2) >= 1080) sample *= 2
+        // A very large or oddly shaped picture: shrink until it fits in ~16 million pixels, so a
+        // huge download can't run the TV out of memory.
+        while (bounds.outWidth.toLong() / sample * (bounds.outHeight.toLong() / sample) > MAX_PIXELS) sample *= 2
         val src = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, BitmapFactory.Options().apply { inSampleSize = sample }) ?: return null
         if (src.width == 1920 && src.height == 1080) return src
         val scale = maxOf(1920f / src.width, 1080f / src.height)
