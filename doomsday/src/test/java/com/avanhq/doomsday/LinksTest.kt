@@ -32,7 +32,7 @@ class LinksTest {
     @Test
     fun httpOnlyFromAComputerAtHome() {
         assertNull(Links.problem("https://example.com/a.jpg"))
-        assertNull(Links.problem("http://192.168.1.83:8080/hall.jpg"))
+        assertNull(Links.problem("http://192.168.1.20:8080/hall.jpg"))
         assertNull(Links.problem("http://10.0.0.5/a.png"))
         assertNotNull(Links.problem("http://example.com/a.jpg"))
         assertNotNull(Links.problem("ftp://example.com/a.jpg"))
