@@ -87,14 +87,20 @@ class DoomCounter(context: Context) : FrameLayout(context) {
         alpha = .55f
     }
 
+    private var pulses = 0
+
     /** The time left now: rolls the digits that changed and glows the seconds. */
     fun tick() {
         val parts = Countdown.parts()
         show(parts)
         if (!Ui.still && parts.any { it != 0L }) {
+            // On a paced screen the glow keeps the screen's own frames (FramePace): Android's
+            // own animation drew at 60 and made the whole screen uneven (it ran at an uneven ~40 fps).
             glow.animate().cancel()
             glow.alpha = .9f
-            glow.animate().alpha(0f).setDuration(800).start()
+            val pulse = ++pulses
+            if (FramePace.on) FramePace.animate(800, { f -> if (pulse == pulses) glow.alpha = .9f * (1f - f) }) {}
+            else glow.animate().alpha(0f).setDuration(800).start()
         }
     }
 
