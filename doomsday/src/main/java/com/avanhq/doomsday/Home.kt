@@ -10,10 +10,10 @@ import android.provider.Settings
 import android.view.accessibility.AccessibilityEvent
 
 /**
- * Doomsday on the Home button. Two ways, both off until the person turns them on themselves:
+ * Doomsday on the Home button. Two ways:
  *
- * - On a TV box that lets you choose the home app: "Offer as home app" turns on a home entry
- *   for the app (HomeAlias), and Android then asks which home to use.
+ * - On a TV box that lets you choose the home app: the app offers itself as one (HomeAlias, on
+ *   from the start; Settings → Home button can stop it), and Android asks which home to use.
  * - On Google TV, which has no such choice: [HomeWatcher], an accessibility service switched on
  *   in the TV's Accessibility settings, opens Doomsday when the TV's own home comes up. Fire TV
  *   updates have been blocking this kind of replacement, so there it may not work.
@@ -52,9 +52,23 @@ object Home {
 
     private fun alias(context: Context) = ComponentName(context, "${context.packageName}.HomeAlias")
 
-    /** Whether the app offers itself as a home app (on TV boxes that let you choose). */
+    /** Whether the app offers itself as a home app (on TV boxes that let you choose): on unless
+     *  switched off in Settings (the manifest has it on). */
     fun offered(context: Context): Boolean =
-        context.packageManager.getComponentEnabledSetting(alias(context)) == PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+        when (context.packageManager.getComponentEnabledSetting(alias(context))) {
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED -> true
+            PackageManager.COMPONENT_ENABLED_STATE_DEFAULT -> true
+            else -> false
+        }
+
+    /** Whether to ask "Make Doomsday your home screen?" when it first opens: not if asked
+     *  before, not if another app already handles Home (such as Avan), not if it does already. */
+    fun shouldAsk(asked: Boolean, enabled: String?, self: String): Boolean =
+        !asked && other(enabled, self) == null && !mine(enabled, self)
+
+    /** Google TV (its own home app is installed): there Doomsday takes Home through Accessibility. */
+    fun googleTv(context: Context): Boolean =
+        runCatching { context.packageManager.getPackageInfo("com.google.android.apps.tv.launcherx", 0); true }.getOrDefault(false)
 
     /** Offer the app as a home app, or stop; only its own entry changes, nothing of the TV's. */
     fun offer(context: Context, on: Boolean) {

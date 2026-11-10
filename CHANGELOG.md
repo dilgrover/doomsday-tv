@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.2 (November 2026)
+
+- **Apps**: choose the apps in the row and their order (Settings → Apps: Move earlier, Move
+  later, To the front, Hide or Show), or hold OK on an app on the countdown (Move left · Move
+  right · Hide).
+- **A new icon**: two glowing green eyes in the dark, DOOMSDAY in gold on the banner (drawn in
+  code: `doomsday/icons/`).
+- **Home on first start**: the app asks once "Make Doomsday your home screen?" and shows how
+  (Google TV: two steps in Accessibility; boxes with a home choice: the choice; Fire TV may block
+  it). It's offered as a home app from the start. Not asked when another app already has Home.
+- The card for a missing picture steps aside while the apps are up.
+
 ## 1.1 (November 2026)
 
 - City: **Automatic** finds your town from your internet connection (once a day), or **Search

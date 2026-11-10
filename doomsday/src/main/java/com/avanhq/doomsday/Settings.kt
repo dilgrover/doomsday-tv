@@ -59,6 +59,20 @@ class Settings(context: Context) {
     var dimNight: Boolean
         get() = prefs.getBoolean("dim", false)
         set(v) = prefs.edit().putBoolean("dim", v).apply()
+
+    /** The apps row: your own order (packages, first to last) and the apps you hid ([AppOrder]). */
+    var appOrder: List<String>
+        get() = AppOrder.decode(prefs.getString("app_order", null))
+        set(v) = prefs.edit().putString("app_order", AppOrder.encode(v)).apply()
+
+    var hiddenApps: Set<String>
+        get() = AppOrder.decode(prefs.getString("apps_hidden", null)).toSet()
+        set(v) = prefs.edit().putString("apps_hidden", AppOrder.encode(v)).apply()
+
+    /** The first-start question "Make Doomsday your home screen?" was answered (asked once). */
+    var homeAsked: Boolean
+        get() = prefs.getBoolean("home_asked", false)
+        set(v) = prefs.edit().putBoolean("home_asked", v).apply()
 }
 
 object Options {

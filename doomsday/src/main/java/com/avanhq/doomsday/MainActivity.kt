@@ -44,6 +44,8 @@ class MainActivity : Activity() {
         countdown = DoomsdayScreen(this, pictures, settings, { openPictures(it) }, { openSettings() })
         stage.addView(countdown, FrameLayout.LayoutParams(Ui.W, Ui.H))
         countdown.post { countdown.focusDefault() }
+        // The first time: "Make Doomsday your home screen?" (not if another app has Home).
+        if (Home.shouldAsk(settings.homeAsked, Home.enabled(this), packageName) || intent.getBooleanExtra("welcome", false)) openWelcome()
         handle(intent)
     }
 
@@ -55,6 +57,8 @@ class MainActivity : Activity() {
     private fun handle(i: Intent) {
         if (i.getBooleanExtra("settings", false)) openSettings()
         if (i.getBooleanExtra("city", false)) { openSettings(); openCity() }
+        if (i.getBooleanExtra("apps", false)) { openSettings(); openApps() }
+        i.getStringExtra("appmenu")?.let { pkg -> countdown.post { countdown.openAppMenu(pkg) } }
         if (i.getBooleanExtra("dream", false)) openPreview()
         if (i.hasExtra("pictures")) openPictures(i.getIntExtra("pictures", 0))
         for (n in Pictures.SLOTS.indices) i.getStringExtra("type$n")?.let { text -> links?.type(n, text) }
@@ -79,9 +83,44 @@ class MainActivity : Activity() {
         countdown.backTo(slot)
     }
 
+    private var welcome: HomeWelcome? = null
+
+    private fun openWelcome() {
+        if (welcome != null) return
+        val w = HomeWelcome(this, settings) { closeWelcome() }
+        welcome = w
+        stage.addView(w, FrameLayout.LayoutParams(Ui.W, Ui.H))
+        w.post { w.focusFirst() }
+    }
+
+    private fun closeWelcome() {
+        welcome?.let { stage.removeView(it) }
+        welcome = null
+        countdown.focusDefault()
+    }
+
+    /** Settings → Apps: the row's apps, their order and which are hidden. */
+    private var appsList: AppsScreen? = null
+
+    private fun openApps() {
+        if (appsList == null) {
+            val a = AppsScreen(this, settings) { closeApps() }
+            appsList = a
+            stage.addView(a, FrameLayout.LayoutParams(Ui.W, Ui.H))
+        }
+        appsList?.post { appsList?.focusFirst() }
+    }
+
+    private fun closeApps() {
+        appsList?.let { stage.removeView(it) }
+        appsList = null
+        options?.refresh()
+        options?.focusFirst()
+    }
+
     private fun openSettings() {
         if (options == null) {
-            val s = SettingsScreen(this, settings, pictures, { openPictures(0) }, { openPreview() }, { openCity() }) { closeSettings() }
+            val s = SettingsScreen(this, settings, pictures, { openPictures(0) }, { openPreview() }, { openCity() }, { openApps() }) { closeSettings() }
             options = s
             stage.addView(s, FrameLayout.LayoutParams(Ui.W, Ui.H))
             countdown.visibility = View.INVISIBLE

@@ -24,11 +24,13 @@ class SettingsScreen(
     private val openPictures: () -> Unit,
     private val openPreview: () -> Unit,
     private val openCity: () -> Unit,
+    private val openApps: () -> Unit,
     private val done: () -> Unit,
 ) : FrameLayout(context) {
     private val groups = ArrayList<() -> Unit>() // each row's "mark the chosen chip"
     private var first: View? = null
     private lateinit var cityNote: TextView
+    private lateinit var appsNote: TextView
     private lateinit var homeNote: TextView
     private lateinit var offerChip: TextView
 
@@ -49,21 +51,22 @@ class SettingsScreen(
         section(0, "Pictures", "$added of ${Pictures.SLOTS.size} added (Hall, Mask, Tapestry, Throne)") {
             listOf(chip("Open Pictures") { openPictures() })
         }
-        choice(1, "Rotate every", Options.ROTATE_MINUTES.map { "$it min" to it }, { settings.rotateMinutes }) { settings.rotateMinutes = it }
-        choice(2, "Clock", listOf("24-hour" to true, "12-hour" to false), { settings.clock24 }) { settings.clock24 = it }
-        choice(3, "Weather", listOf("On" to true, "Off" to false), { settings.weatherOn }) { settings.weatherOn = it }
-        cityNote = section(4, "City", "") { listOf(chip("Choose a town") { openCity() }) }
-        choice(5, "Effects", listOf("Full" to false, "Calm" to true), { settings.calm }, "Calm: light, mist and dust; no jumps or camera move") { settings.calm = it }
-        choice(6, "Dim at night", listOf("Off" to false, "11 pm to 7 am" to true), { settings.dimNight }, "Softer and calm at night") { settings.dimNight = it }
-        choice(7, "Ticking sound", listOf("On" to true, "Off" to false), { settings.tick }, "A soft tick each second; never 11 pm to 7 am") { settings.tick = it }
+        appsNote = section(1, "Apps", "") { listOf(chip("Order and hide") { openApps() }) }
+        choice(2, "Rotate every", Options.ROTATE_MINUTES.map { "$it min" to it }, { settings.rotateMinutes }) { settings.rotateMinutes = it }
+        choice(3, "Clock", listOf("24-hour" to true, "12-hour" to false), { settings.clock24 }) { settings.clock24 = it }
+        choice(4, "Weather", listOf("On" to true, "Off" to false), { settings.weatherOn }) { settings.weatherOn = it }
+        cityNote = section(5, "City", "") { listOf(chip("Choose a town") { openCity() }) }
+        choice(6, "Effects", listOf("Full" to false, "Calm" to true), { settings.calm }, "Calm: light, mist and dust; no jumps or camera move") { settings.calm = it }
+        choice(7, "Dim at night", listOf("Off" to false, "11 pm to 7 am" to true), { settings.dimNight }, "Softer and calm at night") { settings.dimNight = it }
+        choice(8, "Ticking sound", listOf("On" to true, "Off" to false), { settings.tick }, "A soft tick each second; never 11 pm to 7 am") { settings.tick = it }
         if (Device.fireTv(context)) {
-            section(8, "Screensaver", "Fire TV doesn't allow other screensavers") { listOf(chip("Preview") { openPreview() }) }
+            section(9, "Screensaver", "Fire TV doesn't allow other screensavers") { listOf(chip("Preview") { openPreview() }) }
         } else {
-            section(8, "Screensaver", "In the TV's settings: Screen saver → Doomsday") {
+            section(9, "Screensaver", "In the TV's settings: Screen saver → Doomsday") {
                 listOf(chip("Open TV settings") { openDreamSettings() }, chip("Preview") { openPreview() })
             }
         }
-        homeNote = section(9, "Home button", "") {
+        homeNote = section(10, "Home button", "") {
             listOf(
                 chip("Open Accessibility") { openAccessibility() },
                 chip("Offer as home app") { Home.offer(context, !Home.offered(context)); refresh() }.also { offerChip = it },
@@ -71,11 +74,13 @@ class SettingsScreen(
         }
         refresh()
         val version = runCatching { context.packageManager.getPackageInfo(context.packageName, 0) }.getOrNull()
-        section(10, "About", "Doomsday ${version?.versionName ?: ""}, build ${version?.longVersionCode ?: 0}. Pictures only from your links, kept on this TV.") { emptyList() }
+        section(11, "About", "Doomsday ${version?.versionName ?: ""}, build ${version?.longVersionCode ?: 0}. Pictures only from your links, kept on this TV.") { emptyList() }
     }
 
     /** The town and the Home button as they are now (after the City screen, or Accessibility). */
     fun refresh() {
+        val hidden = settings.hiddenApps.size
+        appsNote.text = if (settings.appOrder.isEmpty() && hidden == 0) "The usual order, all shown" else "Your order" + if (hidden > 0) " · $hidden hidden" else ""
         cityNote.text = if (settings.cityAuto) "Automatic: ${settings.foundCity?.name ?: "found when the weather next loads"}" else "${settings.chosenCity?.name ?: Options.LONDON.name} (chosen)"
         val other = Home.other(Home.enabled(context), context.packageName)
         homeNote.text = when {
@@ -105,7 +110,7 @@ class SettingsScreen(
 
     /** A row: its name, its chips, and a short note after them (returned, to change later). */
     private fun section(n: Int, name: String, note: String?, chips: () -> List<TextView>): TextView {
-        val y = 126 + n * 84
+        val y = 120 + n * 76 // twelve rows on one screen
         addView(Ui.text(context, name, 28f, Ui.text, bold = true), Ui.at(96, y + 12, 330))
         val row = Ui.row(context, 14).apply { gravity = android.view.Gravity.CENTER_VERTICAL }
         for (c in chips()) {

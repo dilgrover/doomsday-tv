@@ -33,4 +33,11 @@ class HomeTest {
         assertTrue("com.google.android.apps.tv.launcherx" in Home.HOMES)
         assertTrue("com.amazon.tv.launcher" in Home.HOMES)
     }
+
+    @Test fun askedOnceOnlyWhenHomeIsFree() {
+        assertTrue(Home.shouldAsk(false, null, self))
+        assertFalse(Home.shouldAsk(true, null, self)) // answered before
+        assertFalse(Home.shouldAsk(false, "com.avanhq.tv/com.avanhq.tv.HomeWatcher", self)) // Avan has Home
+        assertFalse(Home.shouldAsk(false, "com.avanhq.doomsday/com.avanhq.doomsday.HomeWatcher", self)) // already ours
+    }
 }

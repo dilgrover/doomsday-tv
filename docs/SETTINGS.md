@@ -5,6 +5,7 @@ Open **Settings** from the buttons along the bottom. Each choice is saved as soo
 | Setting | Choices | What it does |
 |---|---|---|
 | **Pictures** | Open Pictures | The four picture slots and their links ([PICTURES.md](PICTURES.md)). |
+| **Apps** | Order and hide | Every app on the TV in the row's order (hidden ones dimmed). Select an app, then **Move earlier**, **Move later**, **To the front**, or **Hide** / **Show**. On the countdown, hold OK on an app for **Move left · Move right · Hide**. |
 | **Rotate every** | 1 · 5 · 15 min | How often **Rotate** moves to the next picture. |
 | **Clock** | 24-hour · 12-hour | The clock at the top right. |
 | **Weather** | On · Off | The weather under the clock, from Open-Meteo, every 30 minutes. Hidden quietly when offline. |
@@ -13,8 +14,10 @@ Open **Settings** from the buttons along the bottom. Each choice is saved as soo
 | **Dim at night** | Off · 11 pm to 7 am | Darker and calm overnight. |
 | **Ticking sound** | On · Off | A soft tick each second while the countdown is on screen. Never between 11 pm and 7 am, never in the screensaver. |
 | **Screensaver** | Open TV settings · Preview | Google TV / Android TV only (Fire TV doesn't allow it). |
-| **Home button** | Open Accessibility · Offer as home app | Make Home open Doomsday (see below). Off until you turn it on. |
+| **Home button** | Open Accessibility · Offer as home app | Make Home open Doomsday (see below). The first time the app opens it asks once; on boxes with a home choice it's offered as a home app from the start. |
 | **About** | | The version. |
+
+![Apps: the row's order, hide or show](images/doomsday-app-apps.png)
 
 ![City: Automatic, or search for any town](images/doomsday-app-city.png)
 

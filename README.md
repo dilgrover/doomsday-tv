@@ -5,6 +5,8 @@ Android TV and Amazon Fire TV, set on pictures that come alive. You add the pict
 by link; the app brings them to life with light, mist, drifting dust, green energy and a slow
 camera move. Hold OK and something summons itself.
 
+<img src="docs/images/banner.png" width="320" alt="The app's banner: two glowing green eyes, DOOMSDAY in gold">
+
 ![The countdown, on the app's own drawn hall](docs/images/doomsday-app.png)
 
 > Not affiliated with or endorsed by Marvel Studios or Disney. No film images are included.
@@ -72,11 +74,13 @@ exactly (glowing eyes, fire in the hands); any other picture gets everything els
 
 ## Settings
 
-Rotate every (1, 5 or 15 minutes) · Clock (24- or 12-hour) · Weather (on/off) · City
+Apps (the row's order: move or hide each app; or hold OK on an app on the countdown) · Rotate
+every (1, 5 or 15 minutes) · Clock (24- or 12-hour) · Weather (on/off) · City
 (Automatic from your connection, or search any town) · Effects (Full, or Calm: no jumps or camera
 move) · Dim at night (11 pm to 7 am) · Ticking sound (on/off; never 11 pm to 7 am) · Screensaver ·
 Home button (Doomsday on Home: Google TV via Accessibility, home-choice boxes via Offer as home
-app; Fire TV may block it) · About. Details: [docs/SETTINGS.md](docs/SETTINGS.md).
+app; Fire TV may block it. The first time it opens, the app asks "Make Doomsday your home
+screen?" and shows how) · About. Details: [docs/SETTINGS.md](docs/SETTINGS.md).
 
 ## Privacy
 

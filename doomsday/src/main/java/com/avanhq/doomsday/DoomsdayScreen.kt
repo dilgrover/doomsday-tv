@@ -49,6 +49,7 @@ class DoomsdayScreen(
 ) : FrameLayout(context) {
     private companion object {
         const val SHORT_MS = 600L
+        const val MENU_MS = 600L // hold OK this long on an app for its menu
         const val ROTATE = 4
         const val COUNTER_X = 96
         const val COUNTER_Y = 270
@@ -79,7 +80,20 @@ class DoomsdayScreen(
     private val gear: TextView = Ui.chip(context, "Settings", 24f) { openSettings() }.apply { background = glass() }
     private val outside = Ui.text(context, "", 26f, Ui.soft, gravity = Gravity.END)
     private val weather = Weather { line -> outside.text = line.orEmpty(); outside.visibility = if (line == null) View.GONE else View.VISIBLE }
-    private val apps = AppsRow(context)
+    private val apps = AppsRow(context, settings)
+
+    // Hold OK on an app: move it or hide it, like Google TV's own row.
+    private var menuFor: String? = null
+    private val menuName = Ui.text(context, "", 24f, Ui.text, bold = true)
+    private val appMenu = Ui.row(context, 12).apply {
+        background = Ui.panel(32f, Color.argb(235, 6, 12, 9), Color.argb(110, 240, 192, 96))
+        setPadding(26, 12, 12, 12)
+        addView(menuName, LinearLayout.LayoutParams(-2, -2).apply { marginEnd = 10 })
+        for ((label, act) in listOf<Pair<String, () -> Unit>>("◀  Move left" to { moveApp(-1) }, "Move right  ▶" to { moveApp(1) }, "Hide" to { hideApp() }, "Done" to { closeAppMenu() })) {
+            addView(Ui.chip(context, label, 22f) { act() }.apply { background = glass() }, LinearLayout.LayoutParams(-2, 56))
+        }
+        visibility = View.GONE
+    }
     private val opts = Ui.row(context, 14)
     private val night = View(context).apply { setBackgroundColor(Color.BLACK); alpha = 0f; isFocusable = false }
 
@@ -98,7 +112,10 @@ class DoomsdayScreen(
     // A move of the remote: the fire leaps to what's selected (not on the first focus as it opens).
     private val focusWatch = ViewTreeObserver.OnGlobalFocusChangeListener { _, now ->
         if (now == null || visibility != View.VISIBLE) return@OnGlobalFocusChangeListener
-        apps.animate().alpha(if (apps.holds(now)) 1f else 0f).setDuration(350).start()
+        val inApps = apps.holds(now) || menuFor != null
+        apps.animate().alpha(if (inApps) 1f else 0f).setDuration(350).start()
+        // The card for a missing picture steps aside while the apps are up (they'd cover it).
+        card.animate().alpha(if (inApps) 0f else 1f).setDuration(250).start()
         if (!stage.calm && System.currentTimeMillis() - openedAt > 900) {
             stage.surge()
             bolt.fire(now)
@@ -142,10 +159,11 @@ class DoomsdayScreen(
         addView(card, Ui.at(96, 540, 820))
         // The TV's apps, above the buttons and out of sight until the remote goes up to them.
         addView(apps, Ui.at(0, CHIPS_Y - AppsRow.HEIGHT - 22, Ui.W, AppsRow.HEIGHT))
+        addView(appMenu, Ui.at(96, CHIPS_Y - AppsRow.HEIGHT - 22 - 96, -2, 80))
         addView(bolt, LayoutParams(Ui.W, Ui.H)) // on top: the fire reaches what's selected
         bolt.avoid = counter.area(COUNTER_X, COUNTER_Y) // round the countdown, not through it
         addView(night, LayoutParams(Ui.W, Ui.H)) // Dim at night: a soft dark veil over it all
-        if (ambient) for (v in listOf(opts, card, apps, bolt)) v.visibility = View.GONE
+        if (ambient) for (v in listOf(opts, card, apps, appMenu, bolt)) v.visibility = View.GONE
         mark()
         tock()
     }
@@ -210,8 +228,25 @@ class DoomsdayScreen(
         val ok = e.keyCode == KeyEvent.KEYCODE_DPAD_CENTER || e.keyCode == KeyEvent.KEYCODE_ENTER ||
             e.keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER || e.keyCode == KeyEvent.KEYCODE_BUTTON_A
         val f = findFocus()
+        if (menuFor != null && e.keyCode == KeyEvent.KEYCODE_BACK) {
+            if (e.action == KeyEvent.ACTION_UP) closeAppMenu()
+            return true
+        }
         if (!ok || f == null) return super.dispatchKeyEvent(e)
         val t = System.currentTimeMillis()
+        // On an app (or its menu) OK never summons: a hold opens the app's menu instead.
+        if (apps.holds(f) || f.parent === appMenu) {
+            if (e.action == KeyEvent.ACTION_DOWN) {
+                if (e.repeatCount == 0) { holdFrom = t; summoned = false }
+                else if (!summoned && apps.holds(f) && t - holdFrom >= MENU_MS) { summoned = true; apps.appOf(f)?.let { openAppMenu(it) } }
+                return true
+            }
+            if (e.action == KeyEvent.ACTION_UP) {
+                if (!summoned && t - holdFrom < MENU_MS) f.performClick()
+                return true
+            }
+            return super.dispatchKeyEvent(e)
+        }
         if (e.action == KeyEvent.ACTION_DOWN) {
             if (e.repeatCount == 0) { holdFrom = t; summoned = false; stage.charge(true) }
             else if (!summoned && t - holdFrom >= DoomStage.HOLD_MS) { summoned = true; goOff() }
@@ -223,6 +258,39 @@ class DoomsdayScreen(
             return true
         }
         return super.dispatchKeyEvent(e)
+    }
+
+    /** The menu for app [pkg]: Move left · Move right · Hide · Done. */
+    fun openAppMenu(pkg: String) {
+        menuFor = pkg
+        menuName.text = apps.label(pkg)
+        appMenu.visibility = View.VISIBLE
+        appMenu.getChildAt(1).requestFocus()
+    }
+
+    private fun closeAppMenu() {
+        val pkg = menuFor ?: return
+        menuFor = null
+        appMenu.visibility = View.GONE
+        apps.focus(pkg)
+    }
+
+    private fun moveApp(by: Int) {
+        val pkg = menuFor ?: return
+        settings.appOrder = AppOrder.move(apps.shown, pkg, by)
+        apps.refresh()
+        apps.alpha = 1f
+    }
+
+    private fun hideApp() {
+        val pkg = menuFor ?: return
+        val i = apps.shown.indexOf(pkg)
+        settings.hiddenApps = AppOrder.toggle(settings.hiddenApps, pkg)
+        menuFor = null
+        appMenu.visibility = View.GONE
+        apps.refresh()
+        val next = apps.shown.getOrNull(i) ?: apps.shown.lastOrNull()
+        if (next != null) apps.focus(next) else focusDefault()
     }
 
     /** The summoning without the remote (`--ez summon true`, for recordings). */

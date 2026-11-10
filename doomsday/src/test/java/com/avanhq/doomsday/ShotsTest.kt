@@ -62,7 +62,14 @@ class ShotsTest {
     @Test
     fun screens() {
         Ui.still = true
+        // The first-start question, then answered (so it doesn't cover the other screens).
+        shot("doomsday-app-welcome")
+        org.robolectric.RuntimeEnvironment.getApplication().getSharedPreferences("settings", android.content.Context.MODE_PRIVATE).edit().putBoolean("home_asked", true).commit()
         shot("doomsday-app")
+        // Settings → Apps, and the menu from holding OK on an app (made-up apps, off the TV).
+        fakeApps()
+        shot("doomsday-app-apps", Intent().putExtra("apps", true))
+        shot("doomsday-app-appmenu", Intent().putExtra("appmenu", "com.netflix.ninja"))
         // The bottom row with the remote on it (one step right from the chosen picture).
         shot("doomsday-app-chips", focus = "Mask")
         // Pictures with the keyboard open, part way through typing a short link.
@@ -82,6 +89,28 @@ class ShotsTest {
                 {"name":"Richmond","latitude":51.461,"longitude":-0.303,"country":"United Kingdom","admin1":"England"},
                 {"name":"Richmond","latitude":37.55,"longitude":-77.46,"country":"United States","admin1":"Virginia"},
                 {"name":"Richmond","latitude":-33.6,"longitude":150.75,"country":"Australia","admin1":"New South Wales"}]}"""))
+        }
+    }
+
+    /** A few apps for the row and Settings → Apps (Robolectric has none installed). */
+    private fun fakeApps() {
+        val app = org.robolectric.RuntimeEnvironment.getApplication()
+        val pm = shadowOf(app.packageManager)
+        val tv = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LEANBACK_LAUNCHER)
+        val colours = listOf(0xFFE53935, 0xFF111111, 0xFF1A98FF, 0xFFEC008C, 0xFFD6E900, 0xFF1DB954, 0xFF6F2DBD)
+        for ((n, p) in listOf(
+            "com.google.android.youtube.tv" to "YouTube", "com.netflix.ninja" to "Netflix", "com.amazon.amazonvideo.livingroom" to "Prime Video",
+            "uk.co.bbc.iplayer" to "BBC iPlayer", "air.ITVMobilePlayer" to "ITVX", "com.spotify.tv.android" to "Spotify", "com.example.tv" to "Another app",
+        ).withIndex()) {
+            val ai = android.content.pm.ActivityInfo().apply {
+                packageName = p.first
+                name = "${p.first}.Main"
+                nonLocalizedLabel = p.second
+                applicationInfo = android.content.pm.ApplicationInfo().apply { packageName = p.first }
+            }
+            val ri = android.content.pm.ResolveInfo().apply { activityInfo = ai; nonLocalizedLabel = p.second }
+            pm.addResolveInfoForIntent(tv, ri)
+            pm.addDrawableResolution(p.first, 0, android.graphics.drawable.ColorDrawable(colours[n].toInt()))
         }
     }
 }
