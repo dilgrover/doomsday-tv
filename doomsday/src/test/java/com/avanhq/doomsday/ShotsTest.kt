@@ -80,13 +80,13 @@ class ShotsTest {
         )
         // Settings, with the town found automatically and the Home button's line.
         shot("doomsday-app-settings", Intent().putExtra("settings", true))
-        // City: what a search for Greenford finds (the answer given here, no network off the TV).
+        // City: what a search for Richmond finds (the answer given here, no network off the TV).
         shot("doomsday-app-city", Intent().putExtra("city", true)) { root ->
             fun city(v: View): CityScreen? = v as? CityScreen ?: (v as? ViewGroup)?.let { g -> (0 until g.childCount).firstNotNullOfOrNull { city(g.getChildAt(it)) } }
-            city(root)?.show("Greenford", Geo.results("""{"results":[
-                {"name":"Greenford","latitude":51.528,"longitude":-0.355,"country":"United Kingdom","admin1":"England"},
-                {"name":"Greenford","latitude":40.6,"longitude":-80.9,"country":"United States","admin1":"Ohio"},
-                {"name":"Greenford","latitude":-33.9,"longitude":151.0,"country":"Australia","admin1":"New South Wales"}]}"""))
+            city(root)?.show("Richmond", Geo.results("""{"results":[
+                {"name":"Richmond","latitude":51.461,"longitude":-0.303,"country":"United Kingdom","admin1":"England"},
+                {"name":"Richmond","latitude":37.554,"longitude":-77.46,"country":"United States","admin1":"Virginia"},
+                {"name":"Richmond","latitude":-33.6,"longitude":150.75,"country":"Australia","admin1":"New South Wales"}]}"""))
         }
     }
 
