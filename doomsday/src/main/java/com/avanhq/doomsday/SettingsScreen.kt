@@ -67,8 +67,8 @@ class SettingsScreen(
             }
         }
         homeNote = section(10, "Home button", "") {
-            listOf(
-                chip("Open Accessibility") { openAccessibility() },
+            listOfNotNull(
+                if (BuildConfig.HOME_WATCHER) chip("Open Accessibility") { openAccessibility() } else null,
                 chip("Offer as home app") { Home.offer(context, !Home.offered(context)); refresh() }.also { offerChip = it },
             )
         }
@@ -86,6 +86,9 @@ class SettingsScreen(
         homeNote.text = when {
             other != null -> "$other already opens with Home on this TV, so Doomsday leaves it"
             Home.mine(Home.enabled(context), context.packageName) -> "On: Doomsday opens when Home is pressed"
+            !BuildConfig.HOME_WATCHER && (Home.googleTv(context) || Device.fireTv(context)) ->
+                "This TV keeps its own home. For Home on Google TV, use the full version (see the FAQ)"
+            !BuildConfig.HOME_WATCHER -> if (Home.offered(context)) "Offered: choose Doomsday when the TV asks for a home app" else "Not offered as a home app"
             Device.fireTv(context) -> "Switch on Doomsday in Accessibility to try; Fire TV updates may block it"
             else -> "Switch on Doomsday in the TV's Accessibility settings"
         }

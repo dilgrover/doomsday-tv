@@ -1,6 +1,16 @@
 # Changelog
 
 
+## 1.4.0
+
+- **Two downloads.** `doomsday-tv-v1.4.0.apk` is now the default: everything except the Google TV
+  Home-button helper. `doomsday-tv-v1.4.0-full.apk` keeps the helper. In some countries Google
+  Play Protect blocks any downloaded app that has an accessibility service ("App blocked to
+  protect your device"), and the helper is one, so the default no longer has it. Both install
+  over each other and over 1.3.x.
+- Boxes that let you pick a home app (Nvidia Shield and many others) can still make Doomsday
+  their home screen with either download (Settings → Home button → Offer as home app).
+
 ## 1.3.3
 
 - Safer: a very large picture is shrunk before it is opened, so it can't run the TV out of memory.

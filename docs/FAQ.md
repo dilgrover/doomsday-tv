@@ -41,7 +41,14 @@ ipapi.co, once a day. Choose a town yourself and that lookup stops.
 Automatic goes by your internet connection, which can be a nearby big town (or the VPN's).
 Settings → City → Search for a town, and pick yours.
 
+**"App blocked to protect your device" (Google Play Protect)**
+In some countries (such as India, Brazil, Singapore and Thailand) Play Protect blocks any
+downloaded app that includes an accessibility service, whatever the app does. Only the **-full**
+download has one (the Google TV Home-button helper). Install the standard download,
+`doomsday-tv-vX.apk` without "-full", and it installs normally.
+
 **Can Doomsday be my home screen?**
-On Google TV yes, through Settings → Home button → Open Accessibility. On boxes that let you
-pick a home app, use Offer as home app. On Fire TV, Amazon may block it. Details:
-[SETTINGS.md](SETTINGS.md#the-home-button).
+On boxes that let you pick a home app (Nvidia Shield and many others): yes with either download,
+through Settings → Home button → Offer as home app. On Google TV, only with the **-full**
+download (Settings → Home button → Open Accessibility), which Play Protect blocks in some
+countries. On Fire TV, Amazon may block it. Details: [SETTINGS.md](SETTINGS.md#the-home-button).

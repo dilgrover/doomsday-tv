@@ -35,21 +35,32 @@ jobs:
             echo "$KEYSTORE_BASE64" | base64 -d > release.jks
             printf 'storeFile=release.jks\nstorePassword=%s\nkeyAlias=%s\nkeyPassword=%s\n' \
               "$KEYSTORE_PASSWORD" "$KEY_ALIAS" "$KEY_PASSWORD" > keystore.properties
-            echo "TASK=assembleRelease" >> "$GITHUB_ENV"
-            echo "APK=doomsday/build/outputs/apk/release/doomsday-release.apk" >> "$GITHUB_ENV"
+            echo "KIND=release" >> "$GITHUB_ENV"
           else
-            echo "TASK=assembleDebug" >> "$GITHUB_ENV"
-            echo "APK=doomsday/build/outputs/apk/debug/doomsday-debug.apk" >> "$GITHUB_ENV"
+            echo "KIND=debug" >> "$GITHUB_ENV"
           fi
       - name: Test and build
         run: |
           chmod +x gradlew
-          ./gradlew testDebugUnitTest "$TASK" --no-daemon
-      - name: Name the APK
-        run: cp "$APK" "doomsday-tv-${GITHUB_REF_NAME}.apk"
+          K="$(echo ${KIND:0:1} | tr a-z A-Z)${KIND:1}"
+          ./gradlew testStandardDebugUnitTest testFullDebugUnitTest "assembleStandard$K" "assembleFull$K" --no-daemon
+      # Two APKs: the standard one (the default download) and -full, with the Home-button helper
+      # that some countries' Play Protect blocks (docs/FAQ.md).
+      - name: Name the APKs
+        run: |
+          cp "doomsday/build/outputs/apk/standard/$KIND/doomsday-standard-$KIND.apk" "doomsday-tv-${GITHUB_REF_NAME}.apk"
+          cp "doomsday/build/outputs/apk/full/$KIND/doomsday-full-$KIND.apk" "doomsday-tv-${GITHUB_REF_NAME}-full.apk"
+      - name: Keep the APKs (manual runs)
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: doomsday-tv-*.apk
       - name: Attach to the release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2.0.8
         with:
-          files: doomsday-tv-${{ github.ref_name }}.apk
+          files: |
+            doomsday-tv-${{ github.ref_name }}.apk
+            doomsday-tv-${{ github.ref_name }}-full.apk
           generate_release_notes: true

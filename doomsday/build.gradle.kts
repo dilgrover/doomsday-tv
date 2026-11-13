@@ -17,7 +17,7 @@ android {
         targetSdk = 34
         // A CI run number, if there is one, so every build installs over the last one.
         versionCode = (System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInt()
-        versionName = "1.3.3"
+        versionName = "1.4.0"
     }
 
     // Debug builds use Android's own debug key. A release build is signed with your own key,
@@ -32,6 +32,22 @@ android {
                 keyAlias = p.getProperty("keyAlias")
                 keyPassword = p.getProperty("keyPassword")
             }
+        }
+    }
+    // Two versions of the same app (same id and key, so either installs over the other):
+    // standard, the default download, without the Home-button helper; and full, with it.
+    // The helper is an accessibility service, and in some countries Google Play Protect
+    // blocks any downloaded app that has one (docs/FAQ.md), so it isn't in the default.
+    flavorDimensions += "home"
+    productFlavors {
+        create("standard") {
+            dimension = "home"
+            buildConfigField("boolean", "HOME_WATCHER", "false")
+        }
+        create("full") {
+            dimension = "home"
+            versionNameSuffix = "-full"
+            buildConfigField("boolean", "HOME_WATCHER", "true")
         }
     }
     buildTypes {
