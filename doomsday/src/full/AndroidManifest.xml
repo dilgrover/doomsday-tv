@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The full version only: the Home-button helper for Google TV (see the main manifest). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Doomsday on the Home button where there's no home choice (Google TV): only once the
+             person switches it on in the TV's Accessibility settings; quiet if another app
+             (Avan) already does this. -->
+        <service
+            android:name="com.avanhq.doomsday.HomeWatcher"
+            android:exported="false"
+            android:label="@string/home_watcher_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/home_watcher" />
+        </service>
+
+    </application>
+</manifest>

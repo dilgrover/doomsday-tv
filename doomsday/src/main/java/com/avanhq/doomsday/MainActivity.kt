@@ -45,7 +45,8 @@ class MainActivity : Activity() {
         stage.addView(countdown, FrameLayout.LayoutParams(Ui.W, Ui.H))
         countdown.post { countdown.focusDefault() }
         // The first time: "Make Doomsday your home screen?" (not if another app has Home).
-        if (Home.shouldAsk(settings.homeAsked, Home.enabled(this), packageName) || (BuildConfig.DEBUG && intent.getBooleanExtra("welcome", false))) openWelcome()
+        val canAsk = BuildConfig.HOME_WATCHER || !(Home.googleTv(this) || Device.fireTv(this)) // standard: only where a home choice exists
+        if ((canAsk && Home.shouldAsk(settings.homeAsked, Home.enabled(this), packageName)) || (BuildConfig.DEBUG && intent.getBooleanExtra("welcome", false))) openWelcome()
         handle(intent)
         // An app installed or updated: the row shows it (and its new banner) straight away.
         packages = com.avanhq.tv.PackageWatch.register(this) { AppsRow.refreshAll() }

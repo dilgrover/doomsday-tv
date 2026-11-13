@@ -44,7 +44,9 @@ The app isn't in an app store. You install the APK yourself (this is called side
 2. Turn on *Settings → System → About → Android TV OS build* (press it 7 times) to enable
    developer options, then *Settings → Apps → Security & restrictions → Unknown sources* and
    allow **Downloader**.
-3. In Downloader, enter the link to `doomsday.apk` (from this repo's Releases page) and install.
+3. In Downloader, enter the link to the APK from this repo's Releases page (`doomsday-tv-vX.apk`;
+   the `-full` one adds the Google TV Home-button helper, which Play Protect blocks in some
+   countries) and install.
 4. Open **Doomsday** from your apps.
 
 **Amazon Fire TV Stick**:
@@ -78,8 +80,8 @@ Apps (the row's order: OK on an app picks it up, the arrows move it, OK puts it 
 every (1, 5 or 15 minutes) · Clock (24- or 12-hour) · Weather (on/off) · City
 (Automatic from your connection, or search any town) · Effects (Full, or Calm: no jumps or camera
 move) · Dim at night (11 pm to 7 am) · Ticking sound (on/off; never 11 pm to 7 am) · Screensaver ·
-Home button (Doomsday on Home: Google TV via Accessibility, home-choice boxes via Offer as home
-app; Fire TV may block it. The first time it opens, the app asks "Make Doomsday your home
+Home button (Doomsday on Home: home-choice boxes via Offer as home app; Google TV via
+Accessibility with the -full download; Fire TV may block it. The first time it opens, the app asks "Make Doomsday your home
 screen?" and shows how) · About. Details: [docs/SETTINGS.md](docs/SETTINGS.md).
 
 ## Privacy

@@ -25,13 +25,15 @@ Open **Settings** from the buttons along the bottom. Each choice is saved as soo
 
 ## The Home button
 
-TVs differ in whether another app may be the home screen:
+TVs differ in whether another app may be the home screen. The standard download has no
+Accessibility helper (Play Protect blocks apps with one in some countries; see the FAQ), so on
+Google TV and Fire TV the Home button needs the **-full** download:
 
 | TV | How | Works? |
 |---|---|---|
-| **Google TV** (Chromecast with Google TV, Sony, TCL…) | Settings → Home button → **Open Accessibility**, then switch on **"Doomsday opens when you press Home"** | Yes: Home shows Google TV's home for a moment, then Doomsday. |
+| **Google TV** (Chromecast with Google TV, Sony, TCL…) | **-full download only**: Settings → Home button → **Open Accessibility**, then switch on **"Doomsday opens when you press Home"** | Yes: Home shows Google TV's home for a moment, then Doomsday. |
 | **Android TV boxes that let you pick a home app** (e.g. Nvidia Shield, many boxes) | Settings → Home button → **Offer as home app**, then press Home and choose Doomsday | Yes. |
-| **Amazon Fire TV** | Open Accessibility as on Google TV | Maybe: Amazon's updates have been blocking home replacements. Try it; if Home still shows Fire TV's home, it isn't allowed on your model. |
+| **Amazon Fire TV** | -full download: Open Accessibility as on Google TV | Maybe: Amazon's updates have been blocking home replacements. Try it; if Home still shows Fire TV's home, it isn't allowed on your model. |
 
 If another app already does this (for example Avan, Projectivy or Button Mapper), Doomsday leaves
 Home to it and Settings says so. Doomsday never changes a TV setting itself; turn it off the
